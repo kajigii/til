@@ -8,11 +8,11 @@
   ・1行目のpublic classの後はクラス名を記述する。Javaのルールとしてファイル名は「クラス名.java」にしなければならない  
   ・2行目のpublic static void main(String[] args) {}の{}内に入力した記述が出力される  
   ・コード例  
-    public class MyProgram {
-      public static void main(String[] args) {
-        System.out.println("Hello, World!");
-      }
-    }  
+    public class MyProgram {  
+  　 public static void main(String[] args) {  
+  　　 System.out.println("Hello, World!");  
+  　 }  
+   }  
 - コンパイル  
   ・ターミナルまたはコマンドプロンプトを開き、Javaファイルが保存されているディレクトリに移動する  
   ・javacコマンド(javac クラス名.java)を使用してJavaファイルをコンパイルする  
@@ -103,11 +103,26 @@
 　int input = new java.util.Scanner(System.in).nextInt();  
 　これらの文を実行すると、プログラムは一時停止し利用者がキーボードから文字を入力できるようになる。入力した内容が各変数に代入される  
 
-
-
-
-
-
-
+## 条件分岐と繰り返し  
+- 代表的な制御構造  
+　順次　　　単純に次の文を実行する  
+　分岐　　　条件によって違う文を実行する  
+　繰り返し　条件が満たされるまで同じ分を繰り返す  
+・分岐  if文  
+　if (分岐条件) ｛  
+　　条件成立のときに実行する処理  
+  　} else {  
+  　　条件不成立のときに実行する処理  
+  　}  
+・繰り返し　While文  
+　while (繰り返しを続ける条件) {  
+　　繰り返し実行する処理  
+　}  
+・制御構文  
+　if文やwhile文のような制御構造を表す分のこと 、条件式とブロックで成り立つ  
+　条件式　　分岐条件や繰り返しを続ける条件を示した式  
+　ブロック　分岐や繰り返しで実行する一連の文の集まり  
+- ブロックの書き方
+・
 
 
