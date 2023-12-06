@@ -79,7 +79,7 @@
 - 命令実行の文  
 ・命令実行の文  
 　呼び出す命令の名前(引数);  
-例) System.out.print(message);  
+例) System.out.println(message);  
 ・
 
 
