@@ -294,6 +294,53 @@
 　・プログラムの見通しがよくなり、全体を把握しやすくなる  
 　・機能単位に記述するため、修正範囲を限定できる  
 　・同じ処理を1つのメソッドにまとめることで、作業効率が上がる  
+・メソッドの定義  
+　メソッドを作成することメソッドの定義という  
+　メソッドの定義  
+  public static void メソッド名() {  
+  　メソッドが呼び出されたときの処理  
+　}  
+・メソッドの呼び出し  
+　メソッドを使用することをメソッドの呼び出すという  
+　メソッドの呼び出し  
+　メソッド名()  
+　以下のコードの場合、mainメソッドが開始され、mainメソッドの中に書かれたhello();でhelloメソッドを呼び出す  
+　public class Main {  
+   public static void main(String[] args) {  
+     System.out.println("メソッドを呼び出します");  
+     hello();  
+     System.out.println("メソッドの呼び出しが終わりました");  
+   }  
+   public static void hello() {  
+     System.out.println("湊さん、こんにちは");  
+   }  
+ }  
+・mainメソッド以外からのメソッドの呼び出し  
+　メソッドは、mainメソッド以外のメソッドからも呼び出すことができる。以下のコードの場合の処理の流れは、main()→methodA()→methodB()の順に実行される  
+　public class Main {  
+   public static void methodA() {  
+     System.out.println("methodA");  
+     methodB();  
+   }  
+   public static void methodB() {  
+     System.out.println("methodB");  
+   }  
+   public static void main(String[] args) {  
+     methodA();  
+   }  
+ }  
+・メソッドにまつわる2つの立場  
+　メソッドにまつわる2つの立場  
+　立場1 メソッドを定義する立場  
+　立場2 メソッドを呼び出す立場  
+　メソッドを定義する人は、メソッドを呼び出す人のことを考えてメソッドを作成する必要がある。メソッド名をaaa()やkeisan()のような名前ではなく、hello()やsaveToFile()のような名前が望ましい  
+- 引数の利用  
+・
+
+
+
+
+
 
 
 
