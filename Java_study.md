@@ -469,6 +469,86 @@
 　・コマンドライン引数  
 　　プログラム起動時に指定したコマンドライン引数が、JVMによって配列に変換されｍmainメソッド起動時に渡される  
 
+## 複数クラスを用いた開発  
+・1つのソースファイルによる開発  
+　1つのソースファイルの中に含まれるメソッドの数が増えると、ソースコード全体を把握するのは難しくなり、開発しにくくなってしまう  
+　Javaでは、1つのソースファイルにはすべてのメソッドを書くのではなく、複数のソースファイルに分割して記述できるしくみがある。複数のソースファイルに分けて開発するのは、複数のクラスに分けて開発すると捉えることもできる  
+　たくさんのメソッドを複数のクラスに分けて記述すると、整理されて分かりやすくなるだけでなく、ファイルごとに開発を分担し、それぞれが並行して開発を進められる(分業しやすい)というメリットもある  
+・計算機プログラムを分割しよう  
+　以下のコードを2つのクラスに分割する(Calc.java)  
+　public class Calc {  
+  　public static void main(String[] args) {  
+    　int a = 10; int b = 2;  
+    　int total = tasu(a, b);  
+    　int delta = hiku(a, b);  
+    　System.out.println("足すと" + total + "、引くと" + delta);  
+  　}  
+  　public static int tasu(int a, int b) {  
+    　return (a + b);  
+  　}  
+  　public static int hiku(int a, int b) {  
+    　return (a - b);  
+  　}  
+　}  
+　tasu()やhiku()の2つは数学的な計算処理をするメソッドで、main()はtasu()やhiku()を呼び出して画面に表示する役割を持つ、全体の流れをつかさどるメソッド。main()とそれ以外のメソッドを2つのクラスに分けて整理する  
+　①計算処理メソッドを記述するためのソースファイルを作成する  
+　　計算ロジックのメソッドを入れるソースファイルを作成する(CAlcLogic.java)  
+　②tasu()とhiku()を移動する  
+　　Calc.javaの中にあるtasu()とhiku()をCalcLogic.javaに移動する  
+　　public class CalcLogic {  
+  　　public static int tasu(int a, int b) {  
+    　　return (a + b);  
+  　　}  
+  　　public static int hiku(int a, int b) {  
+    　　return (a - b);  
+  　　}  
+　　}  
+　③メインメソッド内の呼び出しを修正する  
+　　メインメソッド内でtasu()やhiku()を呼び出そうとしているが、移動させたので呼び出せない。「CalcLogicのtasu()」「calcLogicのhiku()」のように明示的に所属を示す必要がある  
+　　int total = CalcLogic.tasu(a, b);  
+　　int delta = CalcLogic.hiku(a, b);  
+　修正したCalc.java  
+　public class Calc {  
+  　public static void main(String[] args) {  
+    　int a = 10; int b = 2;  
+    　int total = CalcLogic.tasu(a, b);  
+    　int delta = CalcLogic.hiku(a, b);  
+    　System.out.println("足すと" + total + "、引くと" + delta);  
+  　}  
+　}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
