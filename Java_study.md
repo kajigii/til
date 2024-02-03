@@ -516,8 +516,8 @@
     　System.out.println("足すと" + total + "、引くと" + delta);  
   　}  
 　}  
-
-
+- 複数クラスで構成されるプログラム  
+・
 
 
 
