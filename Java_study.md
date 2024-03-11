@@ -704,18 +704,18 @@
 　「勇者とお化けキノコの戦い」というゲームプログラムを作る場合、「勇者」クラスと「お化けキノコ」クラス、Mainクラスの3つのクラスの開発が必要となる  
   
 - クラスの定義方法
-
-
-
-
-
-
-
-
-
-
-
-
+・登場人物クラスの作り方  
+　クラスには「どのような属性や操作を持っているか」を記述していく。勇者クラスを作成する時、「クラス名：勇者」「属性：名前・HP」「操作：戦う・眠る・座る・転ぶ・逃げる」とする。この時、「クラス名」「属性」「操作」を上から一覧として並べるクラス図(class diagram)で表す。クラス図は、世界共通の設計図であるUML(Unified Modeling Language)で定められている図の1つである  
+　・クラス図に基づいて記述したJavaのプログラム)  
+　public class Hero {  
+　 String name;  
+　 int hp;  
+　 public void attack() {・・・}  
+　 public void sleep() {・・・}  
+　 public void sit(int sec) {・・・}  
+　 public void slip() {・・・}  
+　 public void run() {・・・}  
+  
 
 
 
