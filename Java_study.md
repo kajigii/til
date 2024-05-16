@@ -1606,7 +1606,163 @@
 　　抽象クラスやインタフェースからインスタンスを生み出せないが、それらの型を利用することは可能  
   
 - ザックリ捉えたものに命令を送る  
-・
+・捉え方の違いは使い方の違い  
+　まったく同一である1つの存在に対して複数の異なる捉えることができる  
+　捉え方によって方法が変わる  
+　あいまいで抽象的なほど用途は限定され、具体的に捉えるほど用途が増えていく  
+・呼び出せるメソッドの変化  
+　この「捉え方が変わると利用方法が変わる」という現実世界の現象は、Java仮想世界でも再現されている  
+　Character.java  
+　　public abstract class Character {  
+  　　String name;  
+  　　int hp;  
+  　　public void run() {  
+    　　System.out.println(this.name + "は逃げ出した");  
+  　　}  
+  　　public abstract void attack(Matango m);  
+　　}  
+  
+　Wizard.java  
+　　public class Wizard extends Character {  
+  　　int mp;  
+  　　public void attack(Matango m) {  
+    　　System.out.println(this.name + "の攻撃！");  
+    　　System.out.println("敵に3ポイントのダメージ");  
+    　　m.hp -= 3;  
+  　　}  
+  　　public void fireball(Matango m) {  
+    　　System.out.println(this.name + "は火の玉を放った！");  
+    　　System.out.println("敵に20ポイントのダメージ");  
+    　　m.hp -= 20;  
+    　　this.mp -= 5;  
+  　　}  
+　　}  
+  
+　Wizardは魔法使いとしてattack()やfireball()のメソッドを持っているので、インスタンス化すればattackさせたりfireballを使わせたりできる  
+  
+　Main.java  
+　　public class Main {  
+  　　public static void main(String[] args) {  
+    　　Wizard w = new Wizard();  
+    　　Matango m = new Matango();  
+    　　w.name = "アサカ";  
+    　　w.attack(m);  
+    　　w.fireball(m);  
+  　　}  
+　　}  
+  
+　WizardはCharacterの一種なので、Character型変数に代入することが可能である。しかし、Character型に代入してfireballを呼び出そうとするとコンパイルエラーが発生する  
+  
+ Main.java(エラー)  
+　　public class Main {  
+  　　public static void main(String[] args) {  
+    　　Wizard w = new Wizard();  
+    　　Character c = w;  
+    　　Matango m = new Matango();  
+    　　c.name = "アサカ";  
+    　　c.attack(m);  
+    　　c.fireball(m);  
+  　　}  
+　　}  
+  
+　Character型の変数Cに格納されているとはいえ、箱の中身のインスタンスは正真正銘のWizardインスタンスである。そしてWizardならばfireballが使えるはずなのになぜコンパイルエラーが発生してしまうのか。character型の変数に代入するということは、中身のインスタンスを「なにかのキャラクター」程度にザックリ捉えることにほかならない。従って、箱の中身がWizardである事実を忘れてしまうのである  
+  
+　あいまいな型の箱にインスタンスを代入すると  
+　　インスタンスをあいまいに捉えることになり、「厳密のは何型のインスタンスだったか」がわからなくなってしまう  
+  
+エラーが起きるコードの3行目で魔法使いを生み出しているが、4行目の代入をした習慣、箱cの中身がHeroなのかWizardなのか、別の職業のクラスなのか分からなくなってしまう。確実に言えるのは、この箱に入っているのは、キャラクター一種であることだけである。そのため、attack()が呼び出せてfireball()が呼び出せなかった理由は以下のようになる  
+　・attack()が呼び出せた理由  
+　　箱の中身がHeroでもWizardでも、Characterの一種であればattack()は継承して持っているはずだから(どんなキャラクターでも最低限、攻撃はできるはずだから)  
+　・fireball()が呼び出せなかった理由  
+　　箱の中身が、fireball()を持っていると職業とは限らないから(キャラクターでも火の玉を放てるとは限らないから)  
+  
+　私たちがこのインスタンスを「Character」と捉えている限り(character型の変数に入っている限り)、Characterならできる最低限のことしか命令できない。箱の中身のインスタンスがどんなに多くのメソッドを持っていても、外部からCharacterとして持つメソッドしか呼び出せないのである  
+・メソッドを呼び出せた場合に動く処理  
+　メソッドが呼び出せた場合の動きは以下のようになる  
+　Monster.java  
+　　public abstract class Monster {
+  　　public void run(){
+    　　System.out.println("モンスターは逃げ出した。");
+  　　}
+　　}
+  
+　Slime.java  
+　　public class Slime extends Monster {  
+  　　public void run() {  
+    　　System.out.println("スライムはサササっと逃げ出した。");  
+  　　}  
+　　}  
+  
+　Main.java  
+　　public class Main {  
+  　　public static void main(String[] args) {  
+    　　Slime s = new Slime(); Monster m = new Slime();  
+    　　s.run(); m.run();  
+  　　}  
+　　}  
+  
+　実行すると、s.run()とm.run()の結果はMonster型の変数mのrun()を呼び出しているので、「モンスターは逃げ出した」と表示されると思うが、両方「スライムはサササっと逃げ出した」と表示される。変数sと変数mとは、箱の表面に書かれた「○○○です」という表記に違いがあるものの、両方とも中身はあくまでもスライムである。なので「逃げろ！」という命令が届きさえすれば、当然スライムが逃げる。つまり、Slimeのrun()が動作する。このように、実際に動くメソッドの中身はインスタンスの型(中身の型)によって決まる。インスタンスがどんな型の箱に入っているかは関係ない  
+  
+　「箱の型」と「中身の型」  
+　　箱の型　どのメソッドを「呼べるか」を決定する  
+　　中身の型　メソッドが呼ばれたら、「どう動くか」を決定する  
+  
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
