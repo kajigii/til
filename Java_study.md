@@ -1707,82 +1707,151 @@
 　　箱の型　どのメソッドを「呼べるか」を決定する  
 　　中身の型　メソッドが呼ばれたら、「どう動くか」を決定する  
   
--
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- 捉え方を変更する方法  
+・捉え方を途中で変える  
+　Character c = new Wizard();があると変数cに対してfireballメソッドを呼べなくなるが、どうしてもこのインスタンスにfireballを使わせたいという場面がまれにあるだろう。fireballを使えるようにするためには、変数cの中身をWizardであると捉え直す必要がある。そのためには、Wizard w = c;を追加して、インスタンスをWizard型変数に代入すればいいと想像がつく。しかし、コンパイラは基本的にプログラムを1行ずつ解釈し、翻訳しようとするので、このコードもWizard w = c;だけを見てコンパイルエラーにしてしまう  
+　この行だけに着目すると、Character型の変数cに入っているのは、HeroやThiefの可能性もある。万が一、変数cの中身がHeroなのに、それを代入してしまったら、Wizard型の変数にHeroインスタンスが入っている嘘の構図になってしまう。このように、コンパイラは変数の中身が代入先の変数の型と一致するとは限らないと考え、失敗する可能性のある代入を拒否する  
+　それでも、どうしても変数cの中身を強制的にとらえ直したい場合には、Wizard w = (Wizard) c;のように「キャスト演算子」を使って、強制的に支持する方法が想像つく。この指示ならコンパイラは文句を言わず、コンパイルを通してくれる。しかし、あいまいな型に入っている中身を厳密な型に代入するキャストはダウンキャスト(down cast)といわれ、失敗の危険が伴う  
+・キャストの失敗  
+　ダウンキャストは、代入が失敗する可能性を懸念してエラーを出すコンパイラに対し、代入をしても矛盾のある状態にはならないから、黙って代入しなさいと頭ごなしに型変換を実行させる命令だ。前節のコードではうまくいくが、Hero h = (Hero) c;の場合、コンパイルは成功するが、動作させると、代入しようとした瞬間にClassCastExceptionエラーが発生する。このエラーは、キャストによる強制代入の結果、「嘘の構図」になったので強制停止せざるを得なくなった、という意味のエラーである  
+・インスタンスを代入可能かチェックする  
+　ダウンキャストによるClassCastExpectionを確実に回避するには、キャストしても大丈夫かを判定しながらキャストする。Javaにはそのためのinstanceof演算子が用意されている  
+  
+　安全にキャストできるかを判定しつつ、キャストする  
+　　変数 instanceof 型名 キャスト後格納変数名  
+  
+　次のようなコードで、変数cの中身を安全にSuperHero型の変数hに代入できる  
+　　if (c instanceof SuperHero h) {  
+　　　h.fly();  
+　　}  
+  
+　また、キャストが可能か判定した上で、キャストの支持を別にしたい場合は、次のように記述する  
+　　if (c instanceof SuperHero h) {  
+　　　
+  　　SuperHero h = (SuperHero)c;
+    　h.fly();  
+　　}  
+  
+- 多態性のメリット  
+・同一視して配列を利用する  
+　5人のキャラクター(Heroが2人、Theifが1人、Wizardが2人)が旅をするゲームがあるとする。この5人は1つのパーティーを組んでいる。彼らが宿屋に泊まり、HPを50ずつ回復するプログラムを書く場合、次のようになる  
+　  Main.java  
+　　　public class Main   
+  　　　public static void main(String[] args) {  
+    　　　Hero h1 = new Hero();  
+    　　　Hero h2 = new Hero();  
+    　　　Thief t1 = new Thief();  
+    　　　Wizard w1 = new Wizard();  
+    　　　Wizard w2 = new Wizard();  
+    　　　// 冒険開始！  
+    　　　// まず宿屋に泊まる  
+    　　　h1.hp += 50;  
+    　　　h2.hp += 50;  
+    　　　t1.hp += 50;  
+    　　　w1.hp += 50;  
+    　　　w2.hp += 50;  
+ 　 　　}  
+　　　}  
+  
+　このプログラムの宿泊処理(10~14行目)には、2つの課題がある  
+　　①コードに重複が多い  
+　　　それぞれのHPを50増やす処理が何度も登場し、煩雑な記述になっている。変数名を取り違える可能性もある  
+　　②将来的多くの修正が必要  
+　　　パーティーの人数が増えた場合、宿泊処理に行を追加する必要がある。また、インスタンス変数名が変更になったらコードを修正しなければならない  
+　  
+　しかし、多態性と配列を上手に組み合わせれば、この問題は解決する    
+　　public class Main {  
+  　　public static void main(String[] args) {  
+    　　Character[] c = new Character[5];  
+    　　c[0] = new Hero();  
+    　　c[1] = new Hero();  
+    　　c[2] = new Thief();  
+    　　c[3] = new Wizard();  
+    　　c[4] = new Wizard();  
+    　// 宿屋に泊まる  
+    　for (Character ch : c) {  
+      　ch.hp += 50;
+    　}  
+  　}  
+　}  
+  
+　このコードの3行目でCharacter配列を使っている。従来のやりかたでインスタンスを厳密にHeroやThiefとして扱おうとする限り、それらを一括しては扱えない
+　しかし、それぞれをCharacterだとザックリ見なせば「どれもキャラクター」なので、5つのインスタンスをCharacter配列にまとめ、ループを回して一括で処理することも可能になる  
+　・同一視してザックリとした引数を受け取る  
+　　Hero.java  
+　　　public class Hero extends Character {  
+  　　　public void attack(Matango m) {　(お化けキノコ攻撃用)  
+    　　　System.out.println(this.name + "の攻撃！");  
+    　　　System.out.println("敵に10ポイントのダメージをあたえた！");  
+    　　　m.hp -= 10;  
+  　　　}  
+  　　　public void attack(Goblin g) {　(ゴブリン攻撃用)  
+    　　　System.out.println(this.name + "の攻撃！");  
+    　　　System.out.println("敵に10ポイントのダメージをあたえた！");  
+    　　　g.hp -= 10;  
+  　　　}  
+  　　　// 以下スライム用など続く  
+　　　}  
+  
+　上記のコードは重複が多くメンテナンスが大変である。また、将来新たにモンスターが増えるたびにattackメソッドも増やさなければならない。そこで、attackメソッドを次のように修正する  
+  
+　Hero.java  
+　　public class Hero extends Character {  
+  　　public void attack(Monster m) {  
+    　　System.out.println(this.name + "の攻撃！");  
+    　　System.out.println("敵に10ポイントのダメージをあたえた！");  
+    　　m.hp -= 10;  
+  　　}  
+　　}  
+  
+　2行目のattackメソッドを見ると、攻撃する相手は、ザックリ捉えてモンスターなら何でも受け付ける、という表明です。このようなattackメソッドであれば、Monsterクラスを継承しているSlimeやGoblin、そして将来登場するモンスターたちも攻撃することができる  
+・ザックリ利用しても、ちゃんと動く  
+　多態性の真価は、これまで学んだ次の2つを組み合わせた時に発揮される  
+　　1.ザックリ捉えてまとめて扱う  
+　　　厳密には異なるインスタンスをまとめて扱える  
+　　2.メソッドの動作は中身の型に従う  
+　　　格納された箱の型に関わらず自身の型のメソッドが動作する  
+  
+　　Main.java  
+　　　public class Main {  
+  　　　public static void main(String[] args) {  
+    　　　Monster[] monsters = new Monster[3];  
+    　　　monsters[0] = new Slime();  
+    　　　monsters[1] = new Goblin();  
+    　　　monsters[2] = new DeathBat();  
+    　　　for (Monster m : monsters) {  
+      　　　m.run();  
+    　　　}  
+  　　　}  
+　　　}  
+  
+　　Slime.java  
+　　　public class Slime extends Monster {  
+  　　　public void run() {  
+    　　　System.out.println("スライムは、体をうねらせて逃げ出した。");  
+  　　　}  
+　　　}  
+  
+　　Goblin.java  
+　　　public class Goblin extends Monster {  
+  　　　public void run() {  
+    　　　System.out.println("ゴブリンは、腕をふって逃げ出した。");  
+  　　　}  
+　　　}  
+  
+　　DeathBat.java  
+　　　public class DeathBat extends Monster {  
+  　　　public void run() {  
+    　　　System.out.println("地獄コウモリは、羽ばたいて逃げ出した。");  
+  　　　}  
+　　　}  
+  
+　Main.javaの7~9行目で、指示を出す側(メソッドを呼び出す側)は、それぞれのモンスターに対して同じように「とにかく逃げろ」と、いいかげんな指示を繰り返しているだけである。一方、モンスターたちは「逃げろ」と言われたら、きちんと独自の方法で逃げる。どう逃げるかは自分で理解していて、その方法(自分のクラスに定義されたrunメソッドの内容)を使って逃げる。
+　このように、呼び出し側は相手を同一視し、同じように呼び出すのに、呼び出される側は、きちんと自分に決められた動きをする(同じ呼び出し方から、多数の異なる状態を生み出せる)という特性から「多態性」という名前が付けられている  
+  
+## カプセル化  
+- カプセル化の目的とメリット  
+・
 
 
 
