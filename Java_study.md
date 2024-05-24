@@ -1890,45 +1890,77 @@
 　とりあえずは、このパターンに沿ってアクセス修飾を行う。その後、Heroクラスのdieメソッドのように、クラス内部だけで利用するメソッドのみをprivateに指定し直すような微調整すればよいのである  
   
 - getterとsetter  
-・
+・メソッドを経由したフィールド操作  
+　private指定されたフィールドは、ほかのクラスからはアクセスできなくなっている。しかし、外部のクラスからフィールドの値を変更は可能である。例えば、hpフィールドをprivate指定した時に、外部のクラスからattackメソッドを呼べばHPを2減らすことができ、sleepメソッドを呼べばHPを回復できる  
+　hpフィールドの値を変化させるには、必ずattack()かsleep()を経由させなければならない。勇者のHPを増減するためには、このどちらかのメソッドを経由しなければならない。つまり、ほかのクラス(宿屋クラスや王様クラス)の開発者がバグを含んだコードを書いたとしても、勇者のHPを-100に設定することは不可能である  
+　もし万が一、HPに異常な値が設定される不具合に直面しても、そのときはattack()かsleep()のどちらかの処理に間違いがあると簡単に予想できるから、不具合の修正もスムーズにできるだろう  
+・フィールド値を取り出すだけのメソッド  
+　HPクラスには名前を格納したnameフィールドというフィールドがある。勇者の名前は、さまざまな場面んで多くのクラスから利用できる  
+  
+　public class King {  
+    public void talk(Hero h) {  
+    　System.out.println("王様：ようこそ我が国へ、勇者" + h.name + "よ。");  
+    　System.out.println("王様：長旅疲れたであろう。");  
+    　System.out.println("王様：まずは城下町を見てくるとよい。ではまた会おう。");  
+    　h.bye();  
+    　/* … */  
+  　}  
+　}  
+  
+　しかし、Heroクラスの全フィールドをprivateに設定していると、ｋのKingクラスでは次のようなコンパイルエラーが発生してしまう  
+　　name は Hero で private アクセスされます  
+　Heroクラスのnameフィールドｈprivateであるため、Kingクラスからはその存在が「見えない」のである。このままでは毛様が勇者の名前を取得できず、名前も呼べない。そこで、HeroクラスにgetNmaeメソッドを追加して、王様が勇者の名前を知ることが出来るようにする  
+　
+　　public class Hero {
+  　　private int hp;
+  　　private String name;
+  　　private Sword sword;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  　　public String getName(){
+    　　return this.name;
+  　　}
+  　　public void bye() {
+    　　System.out.println("勇者は別れを告げた");
+  　　}
+  　　private void die() {
+    　　System.out.println(this.name + "は死んでしまった！");
+    　　System.out.println("GAME OVERです。");
+  　　}
+  　　void sleep() {
+    　　this.hp = 100;
+    　　System.out.println(this.name + "は眠って回復した！");
+ 　 　}
+　　  public void attack(Matango m) {
+    　　System.out.println(this.name + "の攻撃！");
+    　　/* … */
+    　　System.out.println("お化けキノコ" + m.suffix + "から2ポイントの反撃を受けた");
+    　　this.hp -= 2;
+    　　if (this.hp <= 0 ) {
+      　this.die();
+    　}
+  　}
+  　　/* … */
+　}
+　そして、Kingクラスでは、nameフィールドにアクセスしている部分をgetNam()を呼び出すように、修正すれば完成である  
+　このgetNameメソッドは、attaack、メソッドなどとは異なり、単にnameフィールドの中身を呼び出し元に返すだけの単純なメソッドである。このようなメソッドを総称getter(ゲッターメソッドという)   
+・getterメソッドの書き方  
+　ある特定のフィールド値を取り出すだけのメソッドは、すべてgetterメソッドという。このgetterメソッドの書き方にも定石がある  
+　getterメソッドの定石  
+　　public フィールドの型 getフィールド名() {  
+　　　return this.フィールド名;  
+　　}  
+  
+　メソッド名の最初の3文字「get」にし、それに続けて「フィールド名の先頭を大文字にしたもの」を付け加える。たとえば、フィールド名がnameならgetName()となる(例外として戻り値がboolean型の場合のみisXxxx()メソッド名にすることがある)。このメソッド名の付け方はJava開発者の間で常識になっている慣習である  
+・フィールドに値を代入するだけのメソッド  
+　getterメソッドとは逆に、ある特定のフィールドに指定された値を代入するだけのメソッドをsetter(セッター)メソッドという。setterメソッドも、その記述方法には定石がある  
+　　setterメソッドの定石  
+　　　public void setフィールド名(フィールドの型 任意の変数名) {  
+　　　　this.フィールド名 = 任意の変数名;  
+　　　}  
+  
+　* getterとsetterは、アクセサ(accessor)と総称される  
+・getter/setterの存在価値  
+　
 
 
 
